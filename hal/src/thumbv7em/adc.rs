@@ -47,12 +47,12 @@ macro_rules! adc_hal {
     ($($ADC:ident: ($init:ident, $mclk:ident, $apmask:ident, $compcal:ident, $refcal:ident, $r2rcal:ident),)+) => {
         $(
 impl Adc<$ADC> {
-    pub fn $init(adc: $ADC, mclk: &mut MCLK, clocks: &mut GenericClockController, gclk:GENSELECT_A) -> Self {
+    pub fn $init(adc: $ADC, mclk: &mut MCLK) -> Self {
         mclk.$mclk.modify(|_, w| w.$apmask().set_bit());
         // set to 1/(1/(48000000/32) * 6) = 250000 SPS
-        let adc_clock = clocks.configure_gclk_divider_and_source(gclk, 1, DFLL, false)
-            .expect("adc clock setup failed");
-        clocks.$init(&adc_clock).expect("adc clock setup failed");
+        // let adc_clock = clocks.configure_gclk_divider_and_source(gclk, 1, DFLL, false)
+        //     .expect("adc clock setup failed");
+        // clocks.$init(&adc_clock).expect("adc clock setup failed");
         adc.ctrla.modify(|_, w| w.prescaler().div32());
         adc.ctrlb.modify(|_, w| w.ressel()._12bit());
         while adc.syncbusy.read().ctrlb().bit_is_set() {}
